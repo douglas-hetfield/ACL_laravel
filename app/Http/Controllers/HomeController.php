@@ -15,7 +15,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     /**
@@ -26,10 +26,19 @@ class HomeController extends Controller
     public function index(Notice $notice)
     {
         $posts = $notice->all();
-        //$posts = $notice->where('user_id', auth()->user()->id)->get();
 
+        if(!auth()->user()){
+            return response()->json(['success' => false, 'user' => 'usuario não logado']);
+        }
 
-        return view('home', compact('posts'));
+        if(auth()->user()->can('view', $posts)){
+            return response()->json(['success' => true, 'post' => $posts]);
+        }else{
+            return response()->json(['success' => false]);
+        }
+            //$posts = $notice->where('user_id', auth()->user()->id)->get();
+
+        //return view('home', compact('posts'));
     }
 
     public function update($idPost){
