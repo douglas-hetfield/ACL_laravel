@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     @forelse($posts as $post) <!-- Pega as informações das noticias e do usuario lá no homeController -->
-        @can('view', $post)
+        @can('read', $post)
             <h1>{{$post->title}}</h1>
             <p>{{$post->description}}</p>
             <br>

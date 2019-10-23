@@ -17,7 +17,7 @@ class UserController extends Controller
             $user = Auth()->user();
             $token = Str::random(60);
             $user->api_token = hash('sha256', $token);
-  
+
             if($user->save()){
                 return response()->json(['success' => true, 'user' => $user, 'token' => $token]);
             }else{
@@ -91,5 +91,10 @@ class UserController extends Controller
             \Log::info($e);
             return response()->json(['success' => false, 'error' => $e], 400);
         }
+    }
+
+    public function getUser()
+    {
+        return Auth::user();
     }
 }

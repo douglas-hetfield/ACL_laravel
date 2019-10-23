@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
+use Laravel\Passport\Passport;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract; //add
 use App\User; //add
-use App\Notice; //add
+use App\Demand; //add
 use App\Permission;
 
 
@@ -18,7 +19,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        //\App\Notice::class => \App\Policies\PostPolicy::class,
+        //\App\Demand::class => \App\Policies\PostPolicy::class,
+        'App\Model' => 'App\Policies\ModelPolicy',
     ];
 
     /**
@@ -30,7 +32,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies($gate);
 
-        // $gate->define('update-post',function(User $user, Notice $post){
+        Passport::routes();
+
+        // $gate->define('update-post',function(User $user, Demand $post){
         //     return $user->id == $post->user_id;
         // });
 

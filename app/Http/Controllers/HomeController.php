@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Notice;
+use App\Demand;
 use Gate;
 
 class HomeController extends Controller
@@ -23,29 +23,30 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index(Notice $notice)
+    public function index(Demand $demand)
     {
-        $posts = $notice->all();
+        $posts = $demand->all();
 
         if(!auth()->user()){
             return response()->json(['success' => false, 'user' => 'usuario não logado']);
         }
 
-        if(auth()->user()->can('view', $posts)){
-            return response()->json(['success' => true, 'post' => $posts]);
-        }else{
-            return response()->json(['success' => false]);
-        }
-            //$posts = $notice->where('user_id', auth()->user()->id)->get();
+        // if(auth()->user()->can('view', $posts)){
+        //     return response()->json(['success' => true, 'post' => $posts]);
+        // }else{
+        //     return response()->json(['success' => false]);
+        // }
+        
+        $posts = $demand->where('user_id', auth()->user()->id)->get();
 
-        //return view('home', compact('posts'));
+        return view('home', compact('posts'));
     }
 
     public function update($idPost){
-        $post = Notice::find($idPost);
+        $post = Demand::find($idPost);
         
         //$this->authorize('update-post', $post);
-        if(Gate::denies('edit', $post)){
+        if(Gate::denies('write', $post)){
             abort(403, "Não autorizado");
         }
 

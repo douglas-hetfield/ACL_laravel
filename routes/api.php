@@ -25,12 +25,27 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group([
     'middleware' => 'auth:api',
- 
+    'namespace' => 'Api\\'
 ], function () {
 
-    Route::get('/home', 'HomeController@index');
+    // Route::get('auth/me', 'AuthController@me');
 
-    Route::get('/post/{id}/update', 'HomeController@update');
+    Route::name('user::')->prefix('user')->group(function () {
+        Route::get('me', 'UserController@getUser');
+        Route::get('logout', 'UserController@logout');
+        Route::get('list', 'UserController@index');
+    });
 
-    Route::get('/roles-permission', 'HomeController@rolesPermission');
+    
+    Route::name('demand::')->prefix('demand')->group(function () {
+        Route::get('create', 'DemandController@store');
+        Route::get('list', 'DemandController@index');
+        Route::get('edit', 'DemandController@edit');
+        Route::get('changeStatus', 'DemandController@');
+    });
+    
+
 });
+
+        
+

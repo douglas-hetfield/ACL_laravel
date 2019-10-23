@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\User;
-use App\Notice;
+use App\Demand;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PostPolicy
@@ -24,7 +24,7 @@ class PostPolicy
         return $user->id == $post->user_id;
     }
 
-    public function updatePost(User $user, Notice $post){
+    public function updatePost(User $user, Demand $post){
         return $user->id == $post->user_id;
     }
 }
