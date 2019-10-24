@@ -52,13 +52,22 @@ class DemandController extends Controller
     public function index(Demand $demand)
     {
         $this->hasUser();
+        $id = auth()->user()->id;
+        
+        //dd(auth()->user());
 
         $getDemand = $demand->all();
 
-        if(auth()->user()->can('read', $getDemand)){
+        // $getDemand = $demand->where('user_id', "=" , "$id")->get();
+        if(auth()->user()->can('adm', $getDemand)){
             return response()->json(['success' => true, 'demand' => $getDemand]);
         }else{
-            return response()->json(['success' => false]);
+            $getDemand = $demand->where('user_id', "=" , "$id")->get();
+            if(auth()->user()->can('read', $getDemand)){
+                return response()->json(['success' => true, 'demand' => $getDemand]);
+            }else{
+                return response()->json(['success' => false]);
+            }
         }
         
     }

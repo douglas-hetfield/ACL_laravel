@@ -21,5 +21,15 @@ class PermissionsTableSeeder extends Seeder
             'label' => 'Permissão de escrita generica',
         ]);
 
+        DB::table('permissions')->insert([
+            'name' => 'edit',
+            'label' => 'Permissão de editar generica',
+        ]);
+
+        DB::table('permissions')->insert([
+            'name' => 'finalize',
+            'label' => 'permissão para alterar o status da demanda',
+        ]);
+
     }
 }
