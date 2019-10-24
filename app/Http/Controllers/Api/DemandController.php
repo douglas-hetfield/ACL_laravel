@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 // use \Auth;
 use App\Demand;
 use Gate;
@@ -33,19 +34,16 @@ class DemandController extends Controller
             'description.required'              => 'descrição é requerida',
             'address.required'                  => 'Endereço é requerido',
             'contact.required'                  => 'Contato é requerido',
-            'advertiser.required'               => 'Anunciante é requerido',
             'status.required'                   => 'Status é requerido',
 
             'description.max'                   => 'tamanho máximo para descrição é de 500 caracteres',
             'address.max'                       => 'tamanho máximo para Endereço é de 150 caracteres',
             'contact.max'                       => 'tamanho máximo para Contato é de 150 caracteres',
-            'advertiser.max'                    => 'tamanho máximo para Contato é de 150 caracteres'
         ];
         return Validator::make($data, [
             'description'                       => 'required|max:500',
             'address'                           => 'required|max:150',
             'contact'                           => 'required|max:150',
-            'advertiser'                        => 'required|max:150',
             'status'                            => 'required'
             
         ], $message);
@@ -53,47 +51,100 @@ class DemandController extends Controller
 
     public function index(Demand $demand)
     {
-        $posts = $demand->all();
+        $this->hasUser();
 
-        if(!auth()->user()){
-            return response()->json(['success' => false, 'user' => 'usuario não logado']);
-        }
+        $getDemand = $demand->all();
 
-        if(auth()->user()->can('read', $posts)){
-            return response()->json(['success' => true, 'post' => $posts]);
+        if(auth()->user()->can('read', $getDemand)){
+            return response()->json(['success' => true, 'demand' => $getDemand]);
         }else{
             return response()->json(['success' => false]);
         }
         
     }
 
+    public function hasUser(){
+        if(!auth()->user()){
+            return response()->json(['success' => false, 'user' => 'usuario não logado']);
+        }
+    }
+
     public function store(Request $request)
     {
-        $validator = $this->validator($request->all());
+        try{
+            $this->hasUser();
 
-        if ($validator->fails())
-        {
-            return response()->json(['success' => false, 'error' => $validator->errors()], 400);
+            $demand = new Demand($request->all());
+
+            if(auth()->user()->can('write', $demand)){
+                $validator = $this->validator($request->all());
+
+                if ($validator->fails())
+                {
+                    return response()->json(['success' => false, 'error' => $validator->errors()], 400);
+                }
+
+                $demand->user_id = auth()->user()->id;
+                
+                if($demand->save()){
+                    return response()->json(['success' => true, 'demand' => $demand]);
+                }else{
+                    return response()->json(['success' => false, 'error' => 'Ocorreu um erro durante a transação do banco de dados'], 400);
+                }
+            }else{
+                return response()->json(['success' => false, 'error' => 'Não autorizado'], 403);
+            }
+        }catch (\Exception $e){
+            \Log::info($e);
+            return response()->json(['success' => false, 'error' => $e], 400);
         }
-
-        $participant = Participant::where('email', $request->email)
-                                  ->orWhere('phone', $request->phone)
-                                  ->first();
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        //
+        try{
+            $this->hasUser();
+            
+            $demand = Demand::find($id);
+            $demand->fill($request->all());
+            
+            if(auth()->user()->can('edit', $demand)){   
+                if($demand->save()){
+                    return response()->json(['success' => true, 'demand' => $demand]);
+                }else{
+                    return response()->json(['success' => false, 'error' => 'Ocorreu um erro durante a transação do banco de dados'], 400);
+                }
+            }else{
+                return response()->json(['success' => false, 'error' => 'Não autorizado'], 403);
+            }
+        }catch (\Exception $e){
+            \Log::info($e);
+            return response()->json(['success' => false, 'error' => $e], 400);
+        }
     }
 
-    public function changeStatus(Request $request){
+    public function changeStatus($id){
+        try{
+            $this->hasUser();
 
+            $demand = Demand::find($id);
+
+            if(auth()->user()->can('finalize', $demand)){
+                $demand->status = true;
+
+                if($demand->save()){
+                    return response()->json(['success' => true, 'demand' => $demand]);
+                }else{
+                    return response()->json(['success' => false, 'error' => 'Ocorreu um erro durante a transação do banco de dados'], 400);
+                }
+            }else{
+                return response()->json(['success' => false, 'error' => 'Não autorizado'], 403);
+            }
+        }catch (\Exception $e){
+            \Log::info($e);
+            return response()->json(['success' => false, 'error' => $e], 400);
+        }
     }
-
-
-
-
-
 
 
     public function update($idPost){

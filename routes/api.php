@@ -38,10 +38,10 @@ Route::group([
 
     
     Route::name('demand::')->prefix('demand')->group(function () {
-        Route::get('create', 'DemandController@store');
+        Route::post('insert', 'DemandController@store');
         Route::get('list', 'DemandController@index');
-        Route::get('edit', 'DemandController@edit');
-        Route::get('changeStatus', 'DemandController@');
+        Route::put('edit/{id}', 'DemandController@edit');
+        Route::put('finalize/{id}', 'DemandController@changeStatus');
     });
     
 
