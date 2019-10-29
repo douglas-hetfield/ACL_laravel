@@ -113,11 +113,21 @@ class DemandController extends Controller
     {
         try{
             $this->hasUser();
-            
+
+            $idUser = auth()->user()->id;
+
             $demand = Demand::find($id);
+
+            
+            if($demand->user_id != $idUser){
+                if(!auth()->user()->can('adm', $demand)){
+                    return response()->json(['success' => false, 'erro' => 'Não autorizado'], 403);
+                }
+            }
+
             $demand->fill($request->all());
             
-            if(auth()->user()->can('edit', $demand)){   
+            if(auth()->user()->can('edit', $demand) || auth()->user()->can('adm', $demand)){   
                 if($demand->save()){
                     return response()->json(['success' => true, 'demand' => $demand]);
                 }else{
@@ -137,8 +147,15 @@ class DemandController extends Controller
             $this->hasUser();
 
             $demand = Demand::find($id);
+            $idUser = auth()->user()->id;
 
-            if(auth()->user()->can('finalize', $demand)){
+            if($demand->user_id != $idUser){
+                if(!auth()->user()->can('adm', $demand)){
+                    return response()->json(['success' => false, 'erro' => 'Não autorizado'], 403);
+                }
+            }
+
+            if(auth()->user()->can('finalize', $demand) || auth()->user()->can('adm', $demand)){
                 $demand->status = true;
 
                 if($demand->save()){
@@ -153,19 +170,6 @@ class DemandController extends Controller
             \Log::info($e);
             return response()->json(['success' => false, 'error' => $e], 400);
         }
-    }
-
-
-    public function update($idPost){
-        $post = Demand::find($idPost);
-        
-        //$this->authorize('update-post', $post);
-        if(Gate::denies('write', $post)){
-            abort(403, "Não autorizado");
-        }
-
-
-        return view('post-update', compact('post'));
     }
 
     public function rolesPermission(){
