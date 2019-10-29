@@ -12,11 +12,13 @@ class RolesTableSeeder extends Seeder
     public function run()
     {
         DB::table('roles')->insert([
+            'id' => 1,
             'name' => 'administrador',
             'label' => 'todas as permissões genericas',
         ]);
 
         DB::table('roles')->insert([
+            'id' => 2,
             'name' => 'anunciante',
             'label' => 'possui apenas permissão para visualização emanipulação de suas próprias demandas.',
         ]);

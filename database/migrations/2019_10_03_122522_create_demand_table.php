@@ -17,8 +17,8 @@ class CreateNoticesTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();;
             $table->text('description');
-            $table->string('contact', 200);
-            $table->string('address', 200);
+            $table->string('contact', 150);
+            $table->string('address', 150);
             $table->tinyInteger('status');
             $table->timestamps();
         });
